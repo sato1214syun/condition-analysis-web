@@ -1,0 +1,32 @@
+[project]
+name = "condition-analysis-web"
+version = "0.1.0"
+description = "Add your description here"
+authors = [{ name = "sato1214syun", email = "sato1214syun@gmail.com" }]
+dependencies = [
+    "streamlit>=1.36.0",
+    "polars>=1.3.0",
+    "xlsxwriter>=3.2.0",
+    "fastexcel>=0.11.5",
+]
+readme = "README.md"
+requires-python = ">= 3.12"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.rye]
+managed = true
+dev-dependencies = [
+    "ruff>=0.5.5",
+    "pandas>=2.2.2",
+    "pyarrow>=17.0.0",
+    "pytest>=8.3.1",
+]
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/condition_analysis_web"]
