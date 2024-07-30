@@ -1,13 +1,57 @@
 """Contains the GUI functions for the condition analysis web application."""
 
+import datetime
 import io
+from collections.abc import Callable
 
 import polars as pl
 import streamlit as st
+import streamlit_authenticator as st_auth
 from streamlit.runtime.uploaded_file_manager import UploadedFile
+from streamlit_authenticator.utilities import (
+    LoginError,
+)
 
 from .condition_workbook import ConditionWorkbook
 from .read_data import read_condition_csv, read_condition_xlsx
+
+
+def sign_up(home_page: Callable) -> None:
+    """Display sing-up page.
+
+    Parameters
+    ----------
+    home_page : Callable
+        page you want to display after sign-up.
+    """
+    # setup
+    credentials = {
+        "usernames": {
+            k: dict(v) for k, v in st.secrets["credentials"]["usernames"].items()
+        },
+    }
+
+    authenticator = st_auth.Authenticate(
+        credentials=credentials,
+        cookie_name=st.secrets["cookie"]["name"],
+        cookie_key=st.secrets["cookie"]["key"],
+        cookie_expiry_days=st.secrets["cookie"]["expiry_days"],
+        pre_authorized=dict(st.secrets["preauthorized"]),
+    )
+
+    # Creating a login widget
+    try:
+        authenticator.login()
+    except LoginError as e:
+        st.error(e)
+
+    if st.session_state["authentication_status"]:
+        authenticator.logout()
+        home_page(st.session_state["name"])
+    elif st.session_state["authentication_status"] is False:
+        st.error("Username/password is incorrect")
+    elif st.session_state["authentication_status"] is None:
+        st.warning("Please enter your username and password")
 
 
 def output_excel_bytes(
@@ -75,9 +119,9 @@ def extract_condition_data(
     return condition_df
 
 
-def run_gui() -> None:
+def run_gui(name: str) -> None:
     """Display the GUI for the condition analysis web application."""
-    st.title("体調データ解析エクセルの出力")
+    st.title(f"{name}さんの体調データ解析エクセルの出力")
     st.header("使用手順")
     st.subheader("1. Rhythm Careからデータをcsvで保存する(エクスポート)")
     st.subheader("2. csvファイルをアップロードする")
@@ -91,9 +135,12 @@ def run_gui() -> None:
         type="xlsx",
     )
     st.subheader("3. 解析結果(エクセル)をダウンロードする")
+    today = datetime.datetime.now(tz=datetime.UTC).date().strftime("%Y%m%d")
+    disabled = csv_file is None
+    data: bytes | str = "" if disabled else output_excel_bytes(csv_file, xlsx_file)
     st.download_button(
         label="ダウンロード",
-        data=output_excel_bytes(csv_file, xlsx_file),
-        file_name="test.xlsx",
-        disabled=(csv_file is None),
+        data=data,
+        file_name=f"体調記録_{name}_{today}.xlsx",
+        disabled=disabled,
     )
