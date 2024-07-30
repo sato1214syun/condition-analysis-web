@@ -278,7 +278,7 @@ class ConditionWorkbook(xl.Workbook):
         df: pl.DataFrame,
         duration: str | datetime.timedelta = "1y",
     ) -> Generator[tuple[date, pl.DataFrame], None, None]:
-        for (yearly_date,), yearly_group_df in df.group_by_dynamic(
+        for (yearly_date,), yearly_group_df in df.sort("日付").group_by_dynamic(
             "日付",
             every=duration,
             period=duration,

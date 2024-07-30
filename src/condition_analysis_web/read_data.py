@@ -1,4 +1,5 @@
 """Contains functions for reading condition data from files."""
+
 from pathlib import Path
 from typing import IO
 
@@ -26,7 +27,7 @@ def read_condition_csv(
         skip_rows=1,
         skip_rows_after_header=1,
         schema={"日付": pl.Date, "体調": pl.Int8, "コメント": pl.String},
-    )
+    ).sort("日付")
 
 
 def read_condition_xlsx(xlsx_source: str | Path | IO[bytes] | bytes) -> pl.DataFrame:
@@ -47,4 +48,5 @@ def read_condition_xlsx(xlsx_source: str | Path | IO[bytes] | bytes) -> pl.DataF
         xlsx_source,
         sheet_name="data",
         engine="calamine",
-    )
+        schema_overrides={"日付": pl.Date, "体調": pl.Int8, "コメント": pl.String},
+    ).sort("日付")

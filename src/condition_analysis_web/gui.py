@@ -112,7 +112,7 @@ def extract_condition_data(
         condition_df = former_condition_df.merge_sorted(
             condition_df,
             key="日付",
-        ).unique(subset="日付", keep="last")
+        ).unique(subset="日付", keep="last", maintain_order=True)
     except (FileNotFoundError, ValueError, OSError) as e:
         st.error(f"xlsxファイルの読み込みに失敗しました: {e}")
 
@@ -131,7 +131,7 @@ def run_gui(name: str) -> None:
     )
     st.subheader("2. 前回のエクセルファイルがあればアップロードする")
     xlsx_file = st.file_uploader(
-        "直近の体調推移.xlsxをアップロードしてください",
+        f"直近の体調記録_{name}.xlsxをアップロードしてください",
         type="xlsx",
     )
     st.subheader("3. 解析結果(エクセル)をダウンロードする")
