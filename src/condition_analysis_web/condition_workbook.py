@@ -33,6 +33,9 @@ class ConditionWorkbook(xl.Workbook):
         """
         self._write_raw_data(df, "data")
         self._write_yearly_data(df)
+        latest_year_str = str(df["日付"].dt.year().max())
+        latest_worksheet: Worksheet = self.get_worksheet_by_name(latest_year_str)
+        latest_worksheet.activate()
 
     def _write_raw_data(self, df: pl.DataFrame, sheet_name: str) -> None:
         worksheet = self.add_worksheet(sheet_name)
