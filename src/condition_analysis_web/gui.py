@@ -16,7 +16,7 @@ from .condition_workbook import ConditionWorkbook
 from .read_data import read_condition_csv, read_condition_xlsx
 
 
-def sign_up(home_page: Callable) -> None:
+def sign_in(home_page: Callable) -> None:
     """Display sing-up page.
 
     Parameters

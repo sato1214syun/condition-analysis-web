@@ -8,7 +8,7 @@ import streamlit_authenticator as st_auth
 import tomli_w
 
 
-def sign_in() -> None:  # noqa: D103
+def sign_up() -> None:  # noqa: D103
     secrets_path = Path("./.streamlit/secrets.toml")
     if secrets_path.exists():
         with secrets_path.open("rb") as f:
@@ -50,4 +50,4 @@ def sign_in() -> None:  # noqa: D103
 
 
 if __name__ == "__main__":
-    sign_in()
+    sign_up()
