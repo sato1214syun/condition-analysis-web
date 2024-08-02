@@ -42,13 +42,29 @@ class ConditionWorkbook(xl.Workbook):
         self._write_frame(df, worksheet.name)
 
     def _write_yearly_data(self, df: pl.DataFrame) -> None:
+        # 年間の体調集計データの比較シートを作成
+        worksheet_comp = self.add_worksheet(name="年毎体調比較")
+        comparison_data_position = (0, 0)
         for yearly_date, yearly_group_df in self._iter_yearly_data(df, "1y"):
             worksheet = self.add_worksheet(name=str(yearly_date.year))
             yearly_df = self._prepare_yearly_frame(yearly_group_df, yearly_date.year)
             # データを書き込み
             self._write_frame(yearly_df, worksheet.name)
             # この年の集計データを書込
-            self._write_yearly_agg_data(yearly_df, worksheet.name)
+            self._write_yearly_agg_data(yearly_df, worksheet.name, position="G1")
+            # 年毎の体調の推移の表を書き込み
+            worksheet_comp.write(*comparison_data_position, yearly_date.year)
+            comparison_data_position = (
+                comparison_data_position[0] + 1,
+                comparison_data_position[1],
+            )
+            self._write_yearly_agg_data(
+                yearly_df, worksheet_comp.name, position=comparison_data_position
+            )
+            comparison_data_position = (
+                comparison_data_position[0] + 7,
+                comparison_data_position[1],
+            )
             # 月毎の体調の推移のグラフを挿入
             self._insert_monthly_trend_chart(yearly_df, worksheet.name)
 
@@ -89,16 +105,25 @@ class ConditionWorkbook(xl.Workbook):
             pl.col("日付").dt.weekday().replace(holiday_mapping).alias("土日判定"),
         )
 
-    def _write_yearly_agg_data(self, yearly_df: pl.DataFrame, sheet_name: str) -> None:
+    def _write_yearly_agg_data(
+        self,
+        yearly_df: pl.DataFrame,
+        sheet_name: str,
+        *,
+        position: tuple[int, int] | str = "A1",
+        include_header: bool = True,
+    ) -> None:
         """集計データ書込."""
         agg_df = self._prepare_agg_frame(yearly_df)
 
         # 体調の集計表を書き込んでを条件付き書式(データバー)を追加
         months = tuple(f"{num}月" for num in range(1, 13))
-        agg_df.fill_null(strategy="zero").write_excel(
+        agg_df = agg_df.fill_null(strategy="zero")
+        agg_df.write_excel(
             self,
             sheet_name,
-            position="G1",
+            position=position,
+            include_header=include_header,
             table_style="Table Style Light 15",
             autofilter=False,
             column_widths={"調子": 23, "体調": 23},
