@@ -3,7 +3,6 @@
 builtins = ["_"]
 fix = true
 src = ["src", "tests"]
-extend-include = ["*.ipynb"]
 target-version = "py312"
 
 [lint]
