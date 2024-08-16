@@ -102,7 +102,7 @@ rich==13.7.1
 rpds-py==0.19.0
     # via jsonschema
     # via referencing
-ruff==0.5.7
+ruff==0.6.1
 six==1.16.0
     # via python-dateutil
 smmap==5.0.1
